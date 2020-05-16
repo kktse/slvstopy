@@ -1,16 +1,14 @@
 # slvstopy
 
-Python library for reading SolveSpace files to a python-solvespace systems.
+Python library for reading a SolveSpace file as a python-solvespace system
 
 ## Getting Started
 
 ### Installing
 
-Use local repository as install path. Install instructions subject to change when the project is made public.
-
 ```bash
 cd slvstopy
-pip install .
+pip install git+https://github.com/kktse/slvstopy.git
 ```
 
 ### Example
@@ -52,9 +50,10 @@ This library uses [`python-solvespace`](https://github.com/KmolYuan/solvespace/t
 
 * Entities and constraints only
 * Not all entity types are implemented
+* Not all constraint types are implemented
 * Circles are supported in 2D only
-* Do not dimension from the reference planes for 2D linkages
+* Do not dimension from a workplane in 2D
 
 ## Motivation
 
-The SolveSpace project has a powerful graphical user interface for drawing and constraining mechanisms. This library addressed a need to graphically draw complex mechanisms and analyze them programmatically (ex. suspension kinematic analysis).
+ This library addresses a need to graphically draw complex mechanisms and analyze them programmatically (ex. suspension kinematic analysis).The SolveSpace project has a powerful graphical user interface for drawing and constraining mechanisms. The python-solvespace library provides Python bindings to the SolveSpace API. This library lets you move between the two without drawing the mechanism multiple times.
