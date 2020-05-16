@@ -1,5 +1,5 @@
-from python_solvespace import SolverSystem
-from typing import List, TextIO, Any
+from python_solvespace import SolverSystem, Entity
+from typing import List, TextIO, Any, Dict, Tuple
 
 from slvstopy.constants import VERSION_STRING, EntityType
 from slvstopy.repositories import ConstraintRepository, EntityRepository
@@ -7,18 +7,14 @@ from slvstopy.services import ConstraintService, EntityService
 from slvstopy.utils import set_in_dict
 
 
-def _read_lines_from_file(handle: TextIO) -> List[str]:
-    return handle.read().splitlines()
-
-
-def load_from_filepath(path: str):
+def load_from_filepath(path: str) -> Tuple[SolverSystem, Dict[str, Entity]]:
     with open(path, encoding="utf8", errors="ignore") as f:
         lines = _read_lines_from_file(f)
 
     return load(lines)
 
 
-def load(file_lines: List[str]) -> SolverSystem:
+def load(file_lines: List[str]) -> Tuple[SolverSystem, Dict[str, Entity]]:
     entity_definitions, constraint_definitions = _parse_elements(file_lines)
 
     sys = SolverSystem()
@@ -32,13 +28,11 @@ def load(file_lines: List[str]) -> SolverSystem:
     )
     constraint_service.construct_constraints(constraint_definitions)
 
-    return sys
+    return sys, entity_repository.entities
 
 
-def _create_entities(sys: SolverSystem, entities: List[Any]):
-    for entity in entities:
-        print(EntityType(int(entity["type"])).name)
-    pass
+def _read_lines_from_file(handle: TextIO) -> List[str]:
+    return handle.read().splitlines()
 
 
 def _parse_elements(file_lines: List[str]):
