@@ -312,6 +312,27 @@ class ConstraintService(object):
                 else Entity.FREE_IN_3D
             )
             self.constraint_repository.add_angle(entity_a, entity_b, value, workplane)
+        elif constraint_type == ConstraintType.PARALLEL:
+            entity_a = self.entity_repository.get(constraint_definition["entityA"]["v"])
+            entity_b = self.entity_repository.get(constraint_definition["entityB"]["v"])
+            workplane = (
+                self.entity_repository.get(constraint_definition["workplane"]["v"])
+                if constraint_definition.get("workplane", {}).get("v")
+                else Entity.FREE_IN_3D
+            )
+            self.constraint_repository.add_parallel(entity_a, entity_b, workplane)
+        elif constraint_type == ConstraintType.PERPENDICULAR:
+            entity_a = self.entity_repository.get(constraint_definition["entityA"]["v"])
+            entity_b = self.entity_repository.get(constraint_definition["entityB"]["v"])
+            inverse = bool(int(constraint_definition["other"]))
+            workplane = (
+                self.entity_repository.get(constraint_definition["workplane"]["v"])
+                if constraint_definition.get("workplane", {}).get("v")
+                else Entity.FREE_IN_3D
+            )
+            self.constraint_repository.add_perpendicular(
+                entity_a, entity_b, workplane, inverse
+            )
         elif constraint_type == ConstraintType.EQUAL_RADIUS:
             entity_a = self.entity_repository.get(constraint_definition["entityA"]["v"])
             entity_b = self.entity_repository.get(constraint_definition["entityB"]["v"])
@@ -329,3 +350,8 @@ class ConstraintService(object):
                 else Entity.FREE_IN_3D
             )
             self.constraint_repository.add_where_dragged(point_a, workplane)
+        else:
+            constraint_name = ConstraintType(constraint_type).name
+            raise NotImplementedError(
+                f"Constraint type {constraint_name} is not supported"
+            )

@@ -308,11 +308,35 @@ class ConstraintRepository(object):
             raise NotImplementedError("Workplane cannot be Entity.FREE_IN_3D")
         self.system.angle(e1, e2, value, wp, inverse)
 
-    def add_parallel(self):
-        raise NotImplementedError
+    def add_parallel(
+        self, e1: Entity, e2: Entity, wp: Entity = Entity.FREE_IN_3D
+    ) -> None:
+        if wp == Entity.FREE_IN_3D:
+            # This causes Python to crash. Avoid.
+            raise NotImplementedError("Workplane cannot be Entity.FREE_IN_3D")
+        self.system.parallel(e1, e2, wp)
 
-    def add_perpendicular(self):
-        raise NotImplementedError
+    def add_perpendicular(
+        self,
+        e1: Entity,
+        e2: Entity,
+        wp: Entity = Entity.FREE_IN_3D,
+        inverse: bool = False,
+    ) -> None:
+        # Bypass validation introduced by SovlerSystem.perpendicular as the
+        # constraint in 3D works fine in the SolveSpace API.
+        self.system.add_constraint(
+            Constraint.PERPENDICULAR,
+            wp,
+            0.0,
+            Entity.NONE,
+            Entity.NONE,
+            e1,
+            e2,
+            Entity.NONE,
+            Entity.NONE,
+            inverse,
+        )
 
     def add_arc_line_tangent(self):
         raise NotImplementedError

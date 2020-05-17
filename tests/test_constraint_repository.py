@@ -480,6 +480,195 @@ class TestConstraintRepository:
         assert point_c[0] == pytest.approx(-1.0 / math.sqrt(2))
         assert point_c[1] == pytest.approx(1.0 / math.sqrt(2))
 
+    def test_add_parallel_in_2d(self):
+        origin = self.entity_repository.create_point_in_3d("99999990", 0.0, 0.0, 0.0)
+        normal = self.entity_repository.create_normal_in_3d(
+            "99999991", 1.0, 0.0, 0.0, 0.0
+        )
+        workplane = self.entity_repository.create_workplane("99999992", origin, normal)
+        point_a = self.entity_repository.create_point_in_2d(
+            "99999993", 0.0, 0.0, workplane
+        )
+        point_b = self.entity_repository.create_point_in_2d(
+            "99999994", 5.0, 0.0, workplane
+        )
+        point_c = self.entity_repository.create_point_in_2d(
+            "99999995", 0.0, 5.0, workplane
+        )
+        point_d = self.entity_repository.create_point_in_2d(
+            "99999996", 5.0, 10.0, workplane
+        )
+        line_a = self.entity_repository.create_line_segment(
+            "99999997", point_a, point_b, workplane
+        )
+        line_b = self.entity_repository.create_line_segment(
+            "99999998", point_c, point_d, workplane
+        )
+        self.constraint_repository.add_where_dragged(point_a)
+        self.constraint_repository.add_where_dragged(point_b)
+        self.constraint_repository.add_parallel(line_a, line_b, workplane)
+        result = self.system.solve()
+
+        point_a = matrix(self.system.params(point_a.params))
+        point_b = matrix(self.system.params(point_b.params))
+        point_c = matrix(self.system.params(point_c.params))
+        point_d = matrix(self.system.params(point_d.params))
+
+        vector_ab = (point_b - point_a).dir()
+        vector_cd = (point_d - point_c).dir()
+
+        assert result == ResultFlag.OKAY
+        assert vector_ab[0][0] == pytest.approx(vector_cd[0][0])
+        assert vector_ab[0][1] == pytest.approx(vector_cd[0][1])
+
+    def test_add_perpendicular_in_2d(self):
+        origin = self.entity_repository.create_point_in_3d("99999990", 0.0, 0.0, 0.0)
+        normal = self.entity_repository.create_normal_in_3d(
+            "99999991", 1.0, 0.0, 0.0, 0.0
+        )
+        workplane = self.entity_repository.create_workplane("99999992", origin, normal)
+        point_a = self.entity_repository.create_point_in_2d(
+            "99999993", 0.0, 0.0, workplane
+        )
+        point_b = self.entity_repository.create_point_in_2d(
+            "99999994", 5.0, 0.0, workplane
+        )
+        point_c = self.entity_repository.create_point_in_2d(
+            "99999995", 0.0, 5.0, workplane
+        )
+        point_d = self.entity_repository.create_point_in_2d(
+            "99999996", 5.0, 10.0, workplane
+        )
+        line_a = self.entity_repository.create_line_segment(
+            "99999997", point_a, point_b, workplane
+        )
+        line_b = self.entity_repository.create_line_segment(
+            "99999998", point_c, point_d, workplane
+        )
+        self.constraint_repository.add_where_dragged(point_a)
+        self.constraint_repository.add_where_dragged(point_b)
+        self.constraint_repository.add_perpendicular(line_a, line_b, workplane)
+        result = self.system.solve()
+
+        point_a = matrix(self.system.params(point_a.params))
+        point_b = matrix(self.system.params(point_b.params))
+        point_c = matrix(self.system.params(point_c.params))
+        point_d = matrix(self.system.params(point_d.params))
+
+        vector_ab = (point_b - point_a).dir()
+        vector_cd = (point_d - point_c).dir()
+        dot_product = dot(vector_ab, vector_cd)
+
+        assert result == ResultFlag.OKAY
+        assert compute_distance(vector_ab) > 0
+        assert compute_distance(vector_cd) > 0
+        assert dot_product == pytest.approx(0)
+
+    def test_add_perpendicular_in_2d_inverse(self):
+        origin = self.entity_repository.create_point_in_3d("99999990", 0.0, 0.0, 0.0)
+        normal = self.entity_repository.create_normal_in_3d(
+            "99999991", 1.0, 0.0, 0.0, 0.0
+        )
+        workplane = self.entity_repository.create_workplane("99999992", origin, normal)
+        point_a = self.entity_repository.create_point_in_2d(
+            "99999993", 0.0, 0.0, workplane
+        )
+        point_b = self.entity_repository.create_point_in_2d(
+            "99999994", 5.0, 0.0, workplane
+        )
+        point_c = self.entity_repository.create_point_in_2d(
+            "99999995", 0.0, 5.0, workplane
+        )
+        point_d = self.entity_repository.create_point_in_2d(
+            "99999996", 5.0, 10.0, workplane
+        )
+        line_a = self.entity_repository.create_line_segment(
+            "99999997", point_a, point_b, workplane
+        )
+        line_b = self.entity_repository.create_line_segment(
+            "99999998", point_c, point_d, workplane
+        )
+        self.constraint_repository.add_where_dragged(point_a)
+        self.constraint_repository.add_where_dragged(point_b)
+        self.constraint_repository.add_perpendicular(
+            line_a, line_b, workplane, inverse=True
+        )
+        result = self.system.solve()
+
+        point_a = matrix(self.system.params(point_a.params))
+        point_b = matrix(self.system.params(point_b.params))
+        point_c = matrix(self.system.params(point_c.params))
+        point_d = matrix(self.system.params(point_d.params))
+
+        vector_ab = (point_b - point_a).dir()
+        vector_cd = (point_d - point_c).dir()
+        dot_product = dot(vector_ab, vector_cd)
+
+        assert result == ResultFlag.OKAY
+        assert compute_distance(vector_ab) > 0
+        assert compute_distance(vector_cd) > 0
+        assert dot_product == pytest.approx(0)
+
+    def test_add_perpendicular_in_3d(self):
+        point_a = self.entity_repository.create_point_in_3d("99999990", 0.0, 0.0, 0.0)
+        point_b = self.entity_repository.create_point_in_3d("99999991", 5.0, 0.0, 1.0)
+        point_c = self.entity_repository.create_point_in_3d("99999992", 0.0, 5.0, 0.0)
+        point_d = self.entity_repository.create_point_in_3d("99999993", 0.0, 0.0, -2.0)
+        line_a = self.entity_repository.create_line_segment(
+            "99999994", point_a, point_b
+        )
+        line_b = self.entity_repository.create_line_segment(
+            "99999995", point_c, point_d
+        )
+        self.constraint_repository.add_where_dragged(point_a)
+        self.constraint_repository.add_where_dragged(point_b)
+        self.constraint_repository.add_perpendicular(line_a, line_b)
+        result = self.system.solve()
+
+        point_a = matrix(self.system.params(point_a.params))
+        point_b = matrix(self.system.params(point_b.params))
+        point_c = matrix(self.system.params(point_c.params))
+        point_d = matrix(self.system.params(point_d.params))
+
+        vector_ab = point_b - point_a
+        vector_cd = point_d - point_c
+        dot_product = dot(vector_ab, vector_cd)
+
+        assert result == ResultFlag.OKAY
+        assert compute_distance(vector_ab) > 0
+        assert compute_distance(vector_cd) > 0
+        assert dot_product == pytest.approx(0)
+
+    def test_add_perpendicular_in_3d_inverse(self):
+        point_a = self.entity_repository.create_point_in_3d("99999990", 0.0, 0.0, 0.0)
+        point_b = self.entity_repository.create_point_in_3d("99999991", 5.0, 0.0, 1.0)
+        point_c = self.entity_repository.create_point_in_3d("99999992", 0.0, 5.0, 0.0)
+        point_d = self.entity_repository.create_point_in_3d("99999993", 0.0, 0.0, -2.0)
+        line_a = self.entity_repository.create_line_segment(
+            "99999994", point_a, point_b
+        )
+        line_b = self.entity_repository.create_line_segment(
+            "99999994", point_c, point_d
+        )
+        self.constraint_repository.add_where_dragged(point_a)
+        self.constraint_repository.add_where_dragged(point_b)
+        self.constraint_repository.add_perpendicular(line_a, line_b, inverse=True)
+        result = self.system.solve()
+
+        point_a = matrix(self.system.params(point_a.params))
+        point_b = matrix(self.system.params(point_b.params))
+        point_c = matrix(self.system.params(point_c.params))
+        point_d = matrix(self.system.params(point_d.params))
+
+        vector_ab = point_b - point_a
+        vector_cd = point_d - point_c
+        dot_product = dot(vector_ab, vector_cd)
+
+        assert result == ResultFlag.OKAY
+        assert compute_distance(vector_ab) > 0
+        assert compute_distance(vector_cd) > 0
+        assert dot_product == pytest.approx(0)
+
     def test_add_equal_radius_in_2d(self):
         origin = self.entity_repository.create_point_in_3d("99999990", 0.0, 0.0, 0.0)
         normal = self.entity_repository.create_normal_in_3d(

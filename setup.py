@@ -13,7 +13,7 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
         "Programming Language :: Python :: 3.8",
-        "Topic :: Scientific/Engineering"
+        "Topic :: Scientific/Engineering",
     ],
     package_dir={"": "src"},
     packages=find_packages(where="src"),

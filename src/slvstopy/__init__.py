@@ -1,7 +1,7 @@
 from python_solvespace import SolverSystem, Entity
-from typing import List, TextIO, Any, Dict, Tuple
+from typing import List, TextIO, Dict, Tuple
 
-from slvstopy.constants import VERSION_STRING, EntityType
+from slvstopy.constants import VERSION_STRING
 from slvstopy.repositories import ConstraintRepository, EntityRepository
 from slvstopy.services import ConstraintService, EntityService
 from slvstopy.utils import set_in_dict
