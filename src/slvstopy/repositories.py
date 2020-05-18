@@ -11,6 +11,7 @@ class EntityRepository(object):
     def __init__(self, system: SolverSystem = SolverSystem()):
         self.system: SolverSystem = system
         self.entities: Dict[str, Any] = {}
+        self._group_number = 0
 
     def get(self, entity_id: str) -> Entity:
         try:
@@ -108,6 +109,8 @@ class EntityRepository(object):
     def create_workplane(self, entity_id: str, origin: Entity, nm: Entity) -> Entity:
         entity = self.system.add_work_plane(origin, nm)
         self.add(entity_id, entity)
+        self._group_number += 1
+        self.system.set_group(self._group_number)
         return entity
 
     def get_or_create_line_segment(

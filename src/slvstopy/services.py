@@ -205,7 +205,7 @@ class ConstraintService(object):
             self.construct_constraint(constraint_definition)
 
     def construct_constraint(self, constraint_definition):
-        constraint_type = int(constraint_definition["type"])
+        constraint_type = ConstraintType(int(constraint_definition["type"]))
 
         # TODO: Most of the constraint definitions are the same. Get rid of the
         # repetitive boilerplate.
@@ -232,9 +232,9 @@ class ConstraintService(object):
             self.constraint_repository.add_pt_pt_distance(
                 point_a, point_b, value, workplane
             )
-        elif constraint_type in (
-            ConstraintType.PT_PLANE_DISTANCE,
-            ConstraintType.PT_LINE_DISTANCE,
+        elif (
+            constraint_type == ConstraintType.PT_PLANE_DISTANCE
+            or constraint_type == ConstraintType.PT_LINE_DISTANCE
         ):
             point_a = self.entity_repository.get(constraint_definition["ptA"]["v"])
             plane = self.entity_repository.get(constraint_definition["entityA"]["v"])

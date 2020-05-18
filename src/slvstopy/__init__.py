@@ -7,78 +7,94 @@ from slvstopy.services import ConstraintService, EntityService
 from slvstopy.utils import set_in_dict
 
 
-def load_from_filepath(path: str) -> Tuple[SolverSystem, Dict[str, Entity]]:
-    with open(path, encoding="utf8", errors="ignore") as f:
-        lines = _read_lines_from_file(f)
+class Slvstopy:
+    """
+    A SolverSystem can only solve once. This helper class exists solely to
+    generate new systems.
+    """
 
-    return load(lines)
+    def __init__(self, file_path: str = "", file_handle: TextIO = None):
+        if file_path:
+            with open(file_path, encoding="utf8", errors="ignore") as f:
+                self.lines = self._read_lines_from_file(f)
+        else:
+            self.lines = self._read_lines_from_file(f)
 
+    def generate_system(self) -> Tuple[SolverSystem, Dict[str, Entity]]:
+        return self._generate_system(self.lines)
 
-def load(file_lines: List[str]) -> Tuple[SolverSystem, Dict[str, Entity]]:
-    entity_definitions, constraint_definitions = _parse_elements(file_lines)
+    def _generate_system(
+        self, file_lines: List[str], default_constraints=False
+    ) -> Tuple[SolverSystem, Dict[str, Entity]]:
+        entity_definitions, constraint_definitions = self._parse_elements(file_lines)
 
-    sys = SolverSystem()
-    entity_repository = EntityRepository(system=sys)
-    entity_service = EntityService(entity_repository=entity_repository)
-    entity_service.construct_entities(entity_definitions)
+        sys = SolverSystem()
+        entity_repository = EntityRepository(system=sys)
+        entity_service = EntityService(entity_repository=entity_repository)
+        entity_service.construct_entities(entity_definitions)
 
-    constraint_repository = ConstraintRepository(system=sys)
-    constraint_service = ConstraintService(
-        constraint_repository=constraint_repository, entity_repository=entity_repository
-    )
-    constraint_service.construct_constraints(constraint_definitions)
+        constraint_repository = ConstraintRepository(system=sys)
+        constraint_service = ConstraintService(
+            constraint_repository=constraint_repository,
+            entity_repository=entity_repository,
+        )
+        constraint_service.construct_constraints(constraint_definitions)
 
-    return sys, entity_repository.entities
+        if default_constraints is True:
+            for entity_id in ["00010001", "00020001", "00030001"]:
+                constraint_repository.add_where_dragged(
+                    entity_repository.get(entity_id)
+                )
 
+        return sys, entity_repository.entities
 
-def _read_lines_from_file(handle: TextIO) -> List[str]:
-    return handle.read().splitlines()
+    def _read_lines_from_file(self, handle: TextIO) -> List[str]:
+        return handle.read().splitlines()
 
+    def _parse_elements(self, file_lines: List[str]):
+        sv: dict = {}
+        entities = []
+        constraints = []
 
-def _parse_elements(file_lines: List[str]):
-    sv: dict = {}
-    entities = []
-    constraints = []
+        for line in file_lines:
+            if line == "":
+                continue
 
-    for line in file_lines:
-        if line == "":
-            continue
+            if "=" in line:
+                split = line.split("=")
+                key = split[0]
+                val = split[1]
+                set_in_dict(sv, key.split("."), val)
+            elif line == "AddGroup":
+                continue
+            elif line == "AddParam":
+                continue
+            elif line == "AddEntity":
+                entities.append(sv.get("Entity"))
+                sv = {}
+                continue
+            elif line == "AddRequest":
+                continue
+            elif line == "AddConstraint":
+                constraints.append(sv.get("Constraint"))
+                sv = {}
+                continue
+            elif line == "AddStyle":
+                continue
+            elif line == VERSION_STRING:
+                continue
+            elif any(
+                line.startswith(typ)
+                for typ in [
+                    "Triangle ",
+                    "Surface ",
+                    "SCtrl ",
+                    "TrimBy ",
+                    "Curve ",
+                    "CCtrl ",
+                    "CurvePt ",
+                ]
+            ) or any(line == typ for typ in ["AddSurface", "AddCurve"]):
+                continue
 
-        if "=" in line:
-            split = line.split("=")
-            key = split[0]
-            val = split[1]
-            set_in_dict(sv, key.split("."), val)
-        elif line == "AddGroup":
-            continue
-        elif line == "AddParam":
-            continue
-        elif line == "AddEntity":
-            entities.append(sv.get("Entity"))
-            sv = {}
-            continue
-        elif line == "AddRequest":
-            continue
-        elif line == "AddConstraint":
-            constraints.append(sv.get("Constraint"))
-            sv = {}
-            continue
-        elif line == "AddStyle":
-            continue
-        elif line == VERSION_STRING:
-            continue
-        elif any(
-            line.startswith(typ)
-            for typ in [
-                "Triangle ",
-                "Surface ",
-                "SCtrl ",
-                "TrimBy ",
-                "Curve ",
-                "CCtrl ",
-                "CurvePt ",
-            ]
-        ) or any(line == typ for typ in ["AddSurface", "AddCurve"]):
-            continue
-
-    return entities, constraints
+        return entities, constraints
