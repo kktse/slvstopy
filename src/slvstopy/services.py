@@ -95,9 +95,15 @@ class EntityService(object):
                 ),
                 entity_definition_list,
             )
-            return self.entity_repository.get_or_create_workplane(
+            entity = self.entity_repository.get_or_create_workplane(
                 entity_id, point, normal
             )
+
+            # TODO: Proper support for groups. Workaround for default reference group.
+            group_number = self.entity_repository.get_group_number()
+            self.entity_repository.set_group_number(group_number + 1)
+
+            return entity
         elif entity_type == EntityType.LINE_SEGMENT:
             first_point = self.construct_entity(
                 self._get_entity_definition_by_id(
@@ -223,7 +229,11 @@ class ConstraintService(object):
         elif constraint_type == ConstraintType.PT_PT_DISTANCE:
             point_a = self.entity_repository.get(constraint_definition["ptA"]["v"])
             point_b = self.entity_repository.get(constraint_definition["ptB"]["v"])
-            value = float(constraint_definition["valA"])
+            value = (
+                float(constraint_definition["valA"])
+                if constraint_definition.get("valA")
+                else 0.0
+            )
             workplane = (
                 self.entity_repository.get(constraint_definition["workplane"]["v"])
                 if constraint_definition.get("workplane", {}).get("v")
@@ -238,20 +248,35 @@ class ConstraintService(object):
         ):
             point_a = self.entity_repository.get(constraint_definition["ptA"]["v"])
             plane = self.entity_repository.get(constraint_definition["entityA"]["v"])
-            value = float(constraint_definition["valA"])
+            value = (
+                float(constraint_definition["valA"])
+                if constraint_definition.get("valA")
+                else 0.0
+            )
             workplane = (
                 self.entity_repository.get(constraint_definition["workplane"]["v"])
                 if constraint_definition.get("workplane", {}).get("v")
                 else Entity.FREE_IN_3D
             )
-            if constraint_type == ConstraintType.PT_PLANE_DISTANCE:
-                self.constraint_repository.add_pt_plane_distance(
-                    point_a, plane, value, workplane
-                )
-            elif constraint_type == ConstraintType.PT_LINE_DISTANCE:
-                self.constraint_repository.add_pt_line_distance(
-                    point_a, plane, value, workplane
-                )
+            self.constraint_repository.add_pt_plane_distance(
+                point_a, plane, value, workplane
+            )
+        elif constraint_type == ConstraintType.PT_LINE_DISTANCE:
+            point_a = self.entity_repository.get(constraint_definition["ptA"]["v"])
+            plane = self.entity_repository.get(constraint_definition["entityA"]["v"])
+            value = (
+                float(constraint_definition["valA"])
+                if constraint_definition.get("valA")
+                else 0.0
+            )
+            workplane = (
+                self.entity_repository.get(constraint_definition["workplane"]["v"])
+                if constraint_definition.get("workplane", {}).get("v")
+                else Entity.FREE_IN_3D
+            )
+            self.constraint_repository.add_pt_line_distance(
+                point_a, plane, value, workplane
+            )
         elif constraint_type == ConstraintType.PT_ON_LINE:
             point_a = self.entity_repository.get(constraint_definition["ptA"]["v"])
             line = self.entity_repository.get(constraint_definition["entityA"]["v"])
@@ -295,7 +320,11 @@ class ConstraintService(object):
             self.constraint_repository.add_vertical(entity_a, workplane)
         elif constraint_type == ConstraintType.DIAMETER:
             entity_a = self.entity_repository.get(constraint_definition["entityA"]["v"])
-            value = float(constraint_definition["valA"])
+            value = (
+                float(constraint_definition["valA"])
+                if constraint_definition.get("valA")
+                else 0.0
+            )
             workplane = (
                 self.entity_repository.get(constraint_definition["workplane"]["v"])
                 if constraint_definition.get("workplane", {}).get("v")
@@ -305,13 +334,20 @@ class ConstraintService(object):
         elif constraint_type == ConstraintType.ANGLE:
             entity_a = self.entity_repository.get(constraint_definition["entityA"]["v"])
             entity_b = self.entity_repository.get(constraint_definition["entityB"]["v"])
-            value = float(constraint_definition["valA"])
+            value = (
+                float(constraint_definition["valA"])
+                if constraint_definition.get("valA")
+                else 0.0
+            )
+            inverse = bool(int(constraint_definition["other"]))
             workplane = (
                 self.entity_repository.get(constraint_definition["workplane"]["v"])
                 if constraint_definition.get("workplane", {}).get("v")
                 else Entity.FREE_IN_3D
             )
-            self.constraint_repository.add_angle(entity_a, entity_b, value, workplane)
+            self.constraint_repository.add_angle(
+                entity_a, entity_b, value, workplane, inverse
+            )
         elif constraint_type == ConstraintType.PARALLEL:
             entity_a = self.entity_repository.get(constraint_definition["entityA"]["v"])
             entity_b = self.entity_repository.get(constraint_definition["entityB"]["v"])

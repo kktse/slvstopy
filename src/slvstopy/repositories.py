@@ -23,6 +23,13 @@ class EntityRepository(object):
     def add(self, entity_id: str, entity: Entity) -> None:
         self.entities[entity_id] = entity
 
+    def set_group_number(self, group_number: int) -> None:
+        self._group_number = group_number
+        self.system.set_group(self._group_number)
+
+    def get_group_number(self) -> int:
+        return self._group_number
+
     def get_or_create_point_in_3d(
         self, entity_id: str, x: float, y: float, z: float
     ) -> Entity:
@@ -109,8 +116,6 @@ class EntityRepository(object):
     def create_workplane(self, entity_id: str, origin: Entity, nm: Entity) -> Entity:
         entity = self.system.add_work_plane(origin, nm)
         self.add(entity_id, entity)
-        self._group_number += 1
-        self.system.set_group(self._group_number)
         return entity
 
     def get_or_create_line_segment(
@@ -242,7 +247,7 @@ class ConstraintRepository(object):
     def add_pt_on_line(
         self, point: Entity, line: Entity, wp: Entity = Entity.FREE_IN_3D
     ) -> None:
-        self.system.coincident(point, line, wp)
+        self.system.coincident(point, line)
 
     def add_pt_on_face(self):
         raise NotImplementedError
@@ -307,9 +312,18 @@ class ConstraintRepository(object):
     def add_angle(
         self, e1: Entity, e2: Entity, value: float, wp: Entity, inverse: bool = False
     ) -> None:
-        if wp == Entity.FREE_IN_3D:
-            raise NotImplementedError("Workplane cannot be Entity.FREE_IN_3D")
-        self.system.angle(e1, e2, value, wp, inverse)
+        self.system.add_constraint(
+            Constraint.ANGLE,
+            wp,
+            value,
+            Entity.NONE,
+            Entity.NONE,
+            e1,
+            e2,
+            Entity.NONE,
+            Entity.NONE,
+            inverse,
+        )
 
     def add_parallel(
         self, e1: Entity, e2: Entity, wp: Entity = Entity.FREE_IN_3D
