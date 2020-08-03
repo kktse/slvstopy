@@ -13,6 +13,12 @@ class EntityService(object):
     ):
         self.entity_repository = entity_repository
 
+    def get_group_number(self) -> int:
+        return self.entity_repository.get_group_number()
+
+    def set_group_number(self, group_number: int):
+        self.entity_repository.set_group_number(group_number)
+
     def construct_entities(self, entity_definition_list):
         for entity_definition in entity_definition_list:
             self.construct_entity(entity_definition, entity_definition_list)
@@ -98,10 +104,6 @@ class EntityService(object):
             entity = self.entity_repository.get_or_create_workplane(
                 entity_id, point, normal
             )
-
-            # TODO: Proper support for groups. Workaround for default reference group.
-            group_number = self.entity_repository.get_group_number()
-            self.entity_repository.set_group_number(group_number + 1)
 
             return entity
         elif entity_type == EntityType.LINE_SEGMENT:
