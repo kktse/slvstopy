@@ -242,10 +242,7 @@ class ConstraintService(object):
             self.constraint_repository.add_pt_pt_distance(
                 point_a, point_b, value, workplane
             )
-        elif (
-            constraint_type == ConstraintType.PT_PLANE_DISTANCE
-            or constraint_type == ConstraintType.PT_LINE_DISTANCE
-        ):
+        elif constraint_type == ConstraintType.PT_PLANE_DISTANCE:
             point_a = self.entity_repository.get(constraint_definition["ptA"]["v"])
             plane = self.entity_repository.get(constraint_definition["entityA"]["v"])
             value = (
@@ -260,6 +257,23 @@ class ConstraintService(object):
             )
             self.constraint_repository.add_pt_plane_distance(
                 point_a, plane, value, workplane
+            )
+
+        elif constraint_type == ConstraintType.PT_LINE_DISTANCE:
+            point_a = self.entity_repository.get(constraint_definition["ptA"]["v"])
+            line = self.entity_repository.get(constraint_definition["entityA"]["v"])
+            value = (
+                float(constraint_definition["valA"])
+                if constraint_definition.get("valA")
+                else 0.0
+            )
+            workplane = (
+                self.entity_repository.get(constraint_definition["workplane"]["v"])
+                if constraint_definition.get("workplane", {}).get("v")
+                else Entity.FREE_IN_3D
+            )
+            self.constraint_repository.add_pt_line_distance(
+                point_a, line, value, workplane
             )
         elif constraint_type == ConstraintType.PT_LINE_DISTANCE:
             point_a = self.entity_repository.get(constraint_definition["ptA"]["v"])
