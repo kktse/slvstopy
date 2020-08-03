@@ -11,3 +11,6 @@ format:
 	black .
 	flake8 src tests
 	mypy src/slvstopy
+
+test:
+	pytest -vv
