@@ -1,2 +1,2 @@
 Cython>=0.29.15
-python-solvespace>=3.0.1.post2
+python-solvespace>=3.0.2
