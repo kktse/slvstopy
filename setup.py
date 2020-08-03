@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="slvstopy",
-    version="0.0.1",
+    version="0.0.2",
     url="https://github.com/kktse/slvstopy",
     author="Kelvin Tse",
     classifiers=[
@@ -18,6 +18,6 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     python_requires=">3.6",
-    install_requires=["Cython>=0.29.15", "python-solvespace>=3.0.1.post2"],
+    install_requires=["Cython>=0.29.15", "python-solvespace>=3.0.2"],
     license="MPL2",
 )

@@ -1,12 +1,13 @@
 import pytest
 
 from python_solvespace import ResultFlag
-from slvstopy import load_from_filepath
+from slvstopy import Slvstopy
 
 
 class TestCrankRocker:
-    def test_load_succes(self):
-        system, entities = load_from_filepath("tests/files/crank_rocker.slvs")
+    def test_load_success(self):
+        system_factory = Slvstopy(file_path="tests/files/crank_rocker.slvs")
+        system, entities = system_factory.generate_system()
         point = entities.get("00070000")
         coordinates = system.params(point.params)
         result = system.solve()
@@ -17,8 +18,9 @@ class TestCrankRocker:
 
 
 class TestInvolute:
-    def test_load_succes(self):
-        system, entities = load_from_filepath("tests/files/involute.slvs")
+    def test_load_success(self):
+        system_factory = Slvstopy(file_path="tests/files/involute.slvs")
+        system, entities = system_factory.generate_system()
         point = entities.get("00050000")
         coordinates = system.params(point.params)
         result = system.solve()

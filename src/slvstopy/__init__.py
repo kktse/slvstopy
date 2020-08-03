@@ -24,27 +24,28 @@ class Slvstopy:
         return self._generate_system(self.lines)
 
     def _generate_system(
-        self, file_lines: List[str], default_constraints=False
+        self, file_lines: List[str]
     ) -> Tuple[SolverSystem, Dict[str, Entity]]:
         entity_definitions, constraint_definitions = self._parse_elements(file_lines)
 
         sys = SolverSystem()
         entity_repository = EntityRepository(system=sys)
         entity_service = EntityService(entity_repository=entity_repository)
-        entity_service.construct_entities(entity_definitions)
-
         constraint_repository = ConstraintRepository(system=sys)
         constraint_service = ConstraintService(
             constraint_repository=constraint_repository,
             entity_repository=entity_repository,
         )
-        constraint_service.construct_constraints(constraint_definitions)
 
-        if default_constraints is True:
-            for entity_id in ["00010001", "00020001", "00030001"]:
-                constraint_repository.add_where_dragged(
-                    entity_repository.get(entity_id)
-                )
+        # Assumption: first nine entities are reference entities
+        reference_entity_definitions = entity_definitions[0:9]
+        entity_definitions = entity_definitions[9:]
+
+        entity_service.construct_entities(reference_entity_definitions)
+        entity_service.set_group_number(entity_service.get_group_number() + 1)
+        entity_service.construct_entities(entity_definitions)
+
+        constraint_service.construct_constraints(constraint_definitions)
 
         return sys, entity_repository.entities
 

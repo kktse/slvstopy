@@ -14,10 +14,10 @@ pip install git+https://github.com/kktse/slvstopy.git
 ### Example
 
 ```python
-from slvstopy import load_from_filepath
+from slvstopy import Slvstopy
 
-filepath = 'path/to/your/solvespace/file.slvs'
-system, entities = load_from_filepath(filepath)
+system_factory = Slvstopy('path/to/your/solvespace/file.slvs')
+system, entities = system_factory.generate_system()
 ```
 
 Where:
@@ -29,17 +29,16 @@ Where:
 
 ### Environment
 
-The `requirements.txt` file needs work before it is ready.
+Create a virtual environment (ex. `python -m venv env`) and run the following command to install project dependencies:
 
 ```bash
-pip install requirements.txt
-pip install -e .
+make init
 ```
 
 ### Testing
 
 ```bash
-pytest
+make test
 ```
 
 ## Dependencies
@@ -56,4 +55,4 @@ This library uses [`python-solvespace`](https://github.com/KmolYuan/solvespace/t
 
 ## Motivation
 
- This library addresses a need to graphically draw complex mechanisms and analyze them programmatically (ex. suspension kinematic analysis).The SolveSpace project has a powerful graphical user interface for drawing and constraining mechanisms. The python-solvespace library provides Python bindings to the SolveSpace API. This library lets you move between the two without drawing the mechanism multiple times.
+ This library addresses a need to graphically draw complex mechanisms and analyze them programmatically.

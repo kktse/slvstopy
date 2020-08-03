@@ -247,7 +247,7 @@ class ConstraintRepository(object):
     def add_pt_on_line(
         self, point: Entity, line: Entity, wp: Entity = Entity.FREE_IN_3D
     ) -> None:
-        self.system.coincident(point, line)
+        self.system.coincident(point, line, wp)
 
     def add_pt_on_face(self):
         raise NotImplementedError
