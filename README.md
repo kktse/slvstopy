@@ -1,13 +1,12 @@
 # slvstopy
 
-Python library for reading a SolveSpace file as a python-solvespace system
+Python library for reading a [SolveSpace](https://solvespace.com/index.pl) file as a [`python-solvespace`](https://github.com/KmolYuan/solvespace/tree/python/cython) system.
 
 ## Getting Started
 
 ### Installing
 
 ```bash
-cd slvstopy
 pip install git+https://github.com/kktse/slvstopy.git
 ```
 
@@ -39,6 +38,18 @@ make init
 
 ```bash
 make test
+```
+
+### Linting
+
+```bash
+make lint
+```
+
+### Formatting
+
+```bash
+make format
 ```
 
 ## Dependencies
