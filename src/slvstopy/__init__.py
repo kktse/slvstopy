@@ -16,18 +16,18 @@ class Slvstopy:
     def __init__(self, file_path: str = "", file_handle: TextIO = None):
         if file_path:
             with open(file_path, encoding="utf8", errors="ignore") as f:
-                self.lines = self._read_lines_from_file(f)
+                lines = self._read_lines_from_file(f)
         else:
-            self.lines = self._read_lines_from_file(f)
+            lines = self._read_lines_from_file(f)
+
+        self.entity_definition, self.constraint_definition = self._parse_elements(lines)
 
     def generate_system(self) -> Tuple[SolverSystem, Dict[str, Entity]]:
-        return self._generate_system(self.lines)
+        return self._generate_system(self.entity_definition, self.constraint_definition)
 
     def _generate_system(
-        self, file_lines: List[str]
+        self, entity_definition: List[Dict], constraint_definition: List[Dict],
     ) -> Tuple[SolverSystem, Dict[str, Entity]]:
-        entity_definitions, constraint_definitions = self._parse_elements(file_lines)
-
         sys = SolverSystem()
         entity_repository = EntityRepository(system=sys)
         entity_service = EntityService(entity_repository=entity_repository)
@@ -38,21 +38,21 @@ class Slvstopy:
         )
 
         # Assumption: first nine entities are reference entities
-        reference_entity_definitions = entity_definitions[0:9]
-        entity_definitions = entity_definitions[9:]
+        reference_entity_definition = entity_definition[0:9]
+        mechanism_entity_definition = entity_definition[9:]
 
-        entity_service.construct_entities(reference_entity_definitions)
+        entity_service.construct_entities(reference_entity_definition)
         entity_service.set_group_number(entity_service.get_group_number() + 1)
-        entity_service.construct_entities(entity_definitions)
+        entity_service.construct_entities(mechanism_entity_definition)
 
-        constraint_service.construct_constraints(constraint_definitions)
+        constraint_service.construct_constraints(constraint_definition)
 
         return sys, entity_repository.entities
 
     def _read_lines_from_file(self, handle: TextIO) -> List[str]:
         return handle.read().splitlines()
 
-    def _parse_elements(self, file_lines: List[str]):
+    def _parse_elements(self, file_lines: List[str]) -> Tuple[List, List]:
         sv: dict = {}
         entities = []
         constraints = []
