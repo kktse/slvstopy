@@ -36,7 +36,7 @@ make init
 
 ### Testing
 
-To run unit test:
+To run unit tests:
 
 ```bash
 make test
