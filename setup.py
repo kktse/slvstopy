@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="slvstopy",
-    version="0.0.3",
+    version="0.0.4",
     url="https://github.com/kktse/slvstopy",
     author="Kelvin Tse",
     classifiers=[

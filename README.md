@@ -36,9 +36,18 @@ make init
 
 ### Testing
 
+To run unit test:
+
 ```bash
 make test
 ```
+
+With code coverage:
+
+```back
+make test-coverage
+```
+
 
 ### Linting
 

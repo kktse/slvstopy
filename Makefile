@@ -16,3 +16,6 @@ format:
 
 test:
 	pytest -vv
+
+test-coverage:
+	pytest --cov-report term --cov=src
