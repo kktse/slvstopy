@@ -38,12 +38,12 @@ class Slvstopy:
         )
 
         # Assumption: first nine entities are reference entities
-        reference_entity_definitions = entity_definition[0:9]
-        entity_definitions = entity_definition[9:]
+        reference_entity_definition = entity_definition[0:9]
+        mechanism_entity_definition = entity_definition[9:]
 
-        entity_service.construct_entities(reference_entity_definitions)
+        entity_service.construct_entities(reference_entity_definition)
         entity_service.set_group_number(entity_service.get_group_number() + 1)
-        entity_service.construct_entities(entity_definitions)
+        entity_service.construct_entities(mechanism_entity_definition)
 
         constraint_service.construct_constraints(constraint_definition)
 

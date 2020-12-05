@@ -48,7 +48,6 @@ With code coverage:
 make test-coverage
 ```
 
-
 ### Linting
 
 ```bash
