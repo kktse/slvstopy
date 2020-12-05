@@ -1,6 +1,6 @@
 black==19.10b0
 flake8==3.8.3
-mypy==0.782
+mypy==0.790
 pymatrix==3.0.1
 pytest-cov==2.10.1
 pytest==6.0.1
