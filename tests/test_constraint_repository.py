@@ -521,6 +521,43 @@ class TestConstraintRepository:
         assert vector_ab[0][0] == pytest.approx(vector_cd[0][0])
         assert vector_ab[0][1] == pytest.approx(vector_cd[0][1])
 
+    def test_add_parallel_in_3d(self):
+        origin = self.entity_repository.create_point_in_3d("99999990", 0.0, 0.0, 0.0)
+        point_a = self.entity_repository.create_point_in_3d(
+            "99999993", 0.0, 0.0, 0.
+        )
+        point_b = self.entity_repository.create_point_in_3d(
+            "99999994", 5.0, 0.0, 0.
+        )
+        point_c = self.entity_repository.create_point_in_3d(
+            "99999995", 0.0, 5.0, 0. 
+        )
+        point_d = self.entity_repository.create_point_in_3d(
+            "99999996", 5.0, 10.0, 0. 
+        )
+        line_a = self.entity_repository.create_line_segment(
+            "99999997", point_a, point_b
+        )
+        line_b = self.entity_repository.create_line_segment(
+            "99999998", point_c, point_d
+        )
+        self.constraint_repository.add_where_dragged(point_a)
+        self.constraint_repository.add_where_dragged(point_b)
+        self.constraint_repository.add_parallel(line_a, line_b)
+        result = self.system.solve()
+
+        point_a = matrix(self.system.params(point_a.params))
+        point_b = matrix(self.system.params(point_b.params))
+        point_c = matrix(self.system.params(point_c.params))
+        point_d = matrix(self.system.params(point_d.params))
+
+        vector_ab = (point_b - point_a).dir()
+        vector_cd = (point_d - point_c).dir()
+
+        assert result == ResultFlag.OKAY
+        assert vector_ab[0][0] == pytest.approx(vector_cd[0][0])
+        assert vector_ab[0][1] == pytest.approx(vector_cd[0][1])
+
     def test_add_perpendicular_in_2d(self):
         origin = self.entity_repository.create_point_in_3d("99999990", 0.0, 0.0, 0.0)
         normal = self.entity_repository.create_normal_in_3d(

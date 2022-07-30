@@ -330,7 +330,19 @@ class ConstraintRepository(object):
     ) -> None:
         if wp == Entity.FREE_IN_3D:
             # This causes Python to crash. Avoid.
-            raise NotImplementedError("Workplane cannot be Entity.FREE_IN_3D")
+            # self.system.parallel(e1, e2, wp)
+            # raise NotImplementedError("Workplane cannot be Entity.FREE_IN_3D")
+        
+            self.system.add_constraint(
+                Constraint.PARALLEL,
+                wp,
+                0,
+                Entity.NONE,
+                Entity.NONE,
+                e1,
+                e2,
+            )
+
         self.system.parallel(e1, e2, wp)
 
     def add_perpendicular(
